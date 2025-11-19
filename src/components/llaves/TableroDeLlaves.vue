@@ -41,14 +41,13 @@
           <button
             v-for="llave in llavesPorNivel(nivel)"
             :key="llave.id"
-            @click="seleccionarLlave(llave)"
-            :disabled="llavesOcupadas.includes(llave.id)"
+            @click="llavesOcupadas.includes(llave.id) ? mostrarInfoDocente(llave.id) : seleccionarLlave(llave)"
             :class="[
               'relative p-3 rounded-lg transition-all text-center border-2 flex flex-col items-center justify-center gap-1.5 min-h-[85px] min-w-[70px]',
               llaveSeleccionada?.id === llave.id 
                 ? 'bg-indigo-500 text-white border-indigo-600 shadow-lg scale-105 ring-2 ring-indigo-300' 
                 : llavesOcupadas.includes(llave.id)
-                  ? 'bg-red-50 border-red-300 text-red-400 cursor-not-allowed opacity-60'
+                  ? 'bg-red-50 border-red-300 text-red-400 cursor-pointer opacity-80 hover:opacity-100 hover:shadow-md'
                   : 'bg-white border-gray-300 text-gray-700 hover:border-indigo-400 hover:shadow-md hover:scale-105 cursor-pointer'
             ]"
           >
@@ -82,6 +81,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Información del Docente -->
+    <ModalInfoDocente 
+      :mostrar="mostrarModal"
+      :info-llave="infoLlaveOcupada"
+      :docente="docenteConLlave"
+      :registro="registroLlave"
+      @cerrar="cerrarModal"
+    />
   </div>
 </template>
 
@@ -89,6 +97,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { Icon } from '@iconify/vue';
+import ModalInfoDocente from './ModalInfoDocente.vue';
 
 const props = defineProps({
   personaId: {
@@ -105,6 +114,10 @@ const pabellones = ref<string[]>([]);
 const pabellonSeleccionado = ref<string>('');
 const llaveSeleccionada = ref<any>(null);
 const cargando = ref(false);
+const mostrarModal = ref(false);
+const docenteConLlave = ref<any>(null);
+const registroLlave = ref<any>(null);
+const infoLlaveOcupada = ref<any>(null);
 
 onMounted(() => {
   cargarLlaves();
@@ -177,6 +190,52 @@ const cargarLlavesOcupadas = async () => {
 const seleccionarLlave = (llave: any) => {
   llaveSeleccionada.value = llave;
   emit('llave-seleccionada', llave);
+};
+
+const mostrarInfoDocente = async (llaveId: string) => {
+  mostrarModal.value = true;
+  docenteConLlave.value = null;
+  registroLlave.value = null;
+  
+  // Obtener información de la llave
+  infoLlaveOcupada.value = llaves.value.find(l => l.id === llaveId);
+  
+  try {
+    const hoy = new Date().toISOString().split('T')[0];
+
+    // Obtener el registro de la llave ocupada con información del docente
+    const { data: registro, error: errorRegistro } = await supabase
+      .from('registro_llaves')
+      .select(`
+        *,
+        personas (
+          nombres,
+          paterno,
+          materno,
+          dni,
+          telefono
+        )
+      `)
+      .eq('llave_id', llaveId)
+      .eq('fecha', hoy)
+      .eq('estado', true)
+      .is('hora_retorno', null)
+      .single();
+
+    if (errorRegistro) throw errorRegistro;
+
+    registroLlave.value = registro;
+    docenteConLlave.value = registro?.personas;
+  } catch (error) {
+    console.error('Error al obtener información del docente:', error);
+  }
+};
+
+const cerrarModal = () => {
+  mostrarModal.value = false;
+  docenteConLlave.value = null;
+  registroLlave.value = null;
+  infoLlaveOcupada.value = null;
 };
 </script>
 
