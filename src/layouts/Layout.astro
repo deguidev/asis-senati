@@ -1,17 +1,27 @@
 ---
 import '../styles/global.css'
+import Header from '../components/shared/Header.vue'
+import Footer from '../components/shared/Footer.vue'
 ---
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<meta name="description" content="Sistema de Gestión de Asistencia y Llaves - SENATI" />
+		<title>SENATI - Sistema de Asistencia y Llaves</title>
 	</head>
-	<body>
-		<slot />
+	<body class="flex flex-col min-h-screen">
+		<!-- Header con autenticación integrada vía useAuth composable -->
+		<div class="fixed top-0 left-0 right-0 z-40">
+			<Header client:load />
+		</div>
+		<main class="flex-1">
+			<slot />
+		</main>
+		<Footer client:load />
 	</body>
 </html>
 
@@ -20,6 +30,6 @@ import '../styles/global.css'
 	body {
 		margin: 0;
 		width: 100%;
-		height: 100%;
+		min-height: 100%;
 	}
 </style>

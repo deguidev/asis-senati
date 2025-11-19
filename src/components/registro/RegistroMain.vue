@@ -1,6 +1,6 @@
 <template>
   <!-- Pantalla de inicio centrada (sin persona seleccionada) -->
-  <div v-if="!personaSeleccionada" class="min-h-screen bg-white flex items-center justify-center p-5">
+  <div v-if="!personaSeleccionada" class="min-h-screen bg-white flex items-center justify-center p-8">
     <div class="w-full max-w-2xl">
       <!-- Logo y título -->
       <div class="text-center mb-8">
@@ -30,11 +30,14 @@
         <Icon icon="mdi:information-outline" width="18" height="18" class="inline mr-1 text-blue-500" />
         Ingresa el DNI o código del docente para comenzar
       </p>
+
+      <!-- Botón de Login -->
+      <LoginButton v-if="!isAuthenticated" @login-success="handleLoginSuccess" />
     </div>
   </div>
 
   <!-- Vista principal (con persona seleccionada) -->
-  <div v-else class="max-w-7xl mx-auto p-5">
+  <div v-if="personaSeleccionada" class="max-w-7xl mx-auto p-5">
     <!-- Header con buscador y botón de cerrar sesión -->
     <div class="mb-5 flex flex-col md:flex-row gap-3 items-stretch md:items-start">
       <div class="flex-1">
@@ -110,6 +113,11 @@ import HistorialAsistencia from '@/components/asistencia/HistorialAsistencia.vue
 import TableroDeLlaves from '@/components/llaves/TableroDeLlaves.vue';
 import BotonLlave from '@/components/llaves/BotonLlave.vue';
 import HistorialLlaves from '@/components/llaves/HistorialLlaves.vue';
+import LoginButton from '@/components/auth/LoginButton.vue';
+import { useAuth } from '@/composables/useAuth';
+
+// Autenticación
+const { isAuthenticated } = useAuth();
 
 const personaSeleccionada = ref(null);
 const llaveSeleccionada = ref(null);
@@ -177,6 +185,11 @@ const actualizarHistorialAsistencia = async () => {
 const actualizarHistorialLlaves = () => {
   refreshLlaves.value++;
   llaveSeleccionada.value = null;
+};
+
+const handleLoginSuccess = () => {
+  // La autenticación se maneja automáticamente por el composable useAuth
+  console.log('Login exitoso');
 };
 </script>
 

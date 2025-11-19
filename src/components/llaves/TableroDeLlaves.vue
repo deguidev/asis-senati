@@ -37,7 +37,7 @@
         </h4>
         
         <!-- Grid de Llaves por Nivel -->
-        <div class="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-7">
+        <div class="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-5">
           <button
             v-for="llave in llavesPorNivel(nivel)"
             :key="llave.id"

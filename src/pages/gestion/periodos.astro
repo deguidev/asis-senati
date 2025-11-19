@@ -1,0 +1,12 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PeriodosGestion from '@/components/gestion/PeriodosGestion.vue';
+---
+
+<Layout>
+  <div class="min-h-screen bg-white pt-24 py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+      <PeriodosGestion client:load />
+    </div>
+  </div>
+</Layout>
