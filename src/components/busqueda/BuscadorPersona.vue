@@ -1,13 +1,13 @@
 <template>
   <div class="relative">
-    <div class="flex gap-3">
-      <input v-model="busqueda" type="text" placeholder="Ingresa DNI o Código del docente..." @input="buscarPersona"
+    <div class="flex gap-2 md:gap-3">
+      <input v-model="busqueda" type="text" placeholder="Ingresa DNI o Código..." @input="buscarPersona"
         @keyup.enter="seleccionarPrimero"
-        class="flex-1 px-5 py-3 text-lg border-2 border-gray-300 rounded-lg outline-none transition-colors focus:border-green-500" />
+        class="flex-1 px-3 md:px-5 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg outline-none transition-colors focus:border-green-500" />
       <button @click="buscarPersona"
-        class="flex items-center gap-2 px-5 py-3 text-lg font-semibold bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors">
+        class="flex items-center justify-center gap-2 px-3 md:px-5 py-3 text-lg font-semibold bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors whitespace-nowrap">
         <Icon icon="mdi:search" width="24" height="24" />
-        <span>Buscar</span>
+        <span class="hidden sm:inline">Buscar</span>
       </button>
     </div>
 

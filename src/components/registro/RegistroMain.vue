@@ -36,13 +36,13 @@
   <!-- Vista principal (con persona seleccionada) -->
   <div v-else class="max-w-7xl mx-auto p-5">
     <!-- Header con buscador y botón de cerrar sesión -->
-    <div class="mb-5 flex gap-3 items-start">
+    <div class="mb-5 flex flex-col md:flex-row gap-3 items-stretch md:items-start">
       <div class="flex-1">
         <BuscadorPersona @persona-seleccionada="handlePersonaSeleccionada" />
       </div>
       <button 
         @click="cerrarSesion"
-        class="flex items-center gap-2 px-5 py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold shadow-lg"
+        class="flex items-center justify-center gap-2 px-5 py-3 md:py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold shadow-lg whitespace-nowrap"
       >
         <Icon icon="mdi:logout" width="24" height="24" />
         <span>Cerrar Sesión</span>
