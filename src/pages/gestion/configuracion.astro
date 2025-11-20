@@ -1,0 +1,12 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import ConfiguracionGestion from '@/components/gestion/ConfiguracionGestion.vue';
+---
+
+<Layout title="Configuración - Sistema de Asistencia">
+    <div class="min-h-screen bg-white pt-32 py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+      <ConfiguracionGestion client:load />
+    </div>
+  </div>
+</Layout>

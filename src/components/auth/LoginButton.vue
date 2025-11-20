@@ -59,12 +59,17 @@ const iniciarSesion = async (provider: 'google' | 'azure') => {
   cargando.value = provider;
   
   try {
-    // URL de redirección después de autenticarse
-    const redirectUrl = `${window.location.origin}/`;
+    // Obtener la URL actual del navegador (funciona en local y producción)
+    const currentUrl = window.location.origin;
     
-    // Configurar scopes específicos para Azure
+    console.log('🔐 Iniciando sesión con:', provider);
+    console.log('🌐 URL de redirección:', currentUrl);
+    
+    // Configurar opciones de OAuth
     const options: any = {
-      redirectTo: redirectUrl
+      redirectTo: currentUrl,
+      // Importante: skipBrowserRedirect debe ser false para que funcione correctamente
+      skipBrowserRedirect: false
     };
     
     // Para Azure, agregar scopes explícitos
@@ -77,12 +82,16 @@ const iniciarSesion = async (provider: 'google' | 'azure') => {
       options: options
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Error en signInWithOAuth:', error);
+      throw error;
+    }
     
+    console.log('✅ Redirección iniciada correctamente');
     // El usuario será redirigido al proveedor para autenticarse
     // Cuando regrese, el estado de autenticación se actualizará automáticamente
   } catch (error: any) {
-    console.error('Error al iniciar sesión:', error);
+    console.error('❌ Error al iniciar sesión:', error);
     alert(`Error al iniciar sesión: ${error.message}`);
     cargando.value = false;
   }

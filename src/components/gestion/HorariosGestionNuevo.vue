@@ -254,8 +254,22 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="hora in horasDisponibles" :key="hora">
-              <td class="border border-gray-300 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 sticky left-0 z-10 whitespace-nowrap">
+            <tr 
+              v-for="hora in horasDisponibles" 
+              :key="hora"
+              @mouseenter="filaHover = hora"
+              @mouseleave="filaHover = null"
+              :class="[
+                'transition-all',
+                filaHover === hora ? 'bg-yellow-50' : ''
+              ]"
+            >
+              <td 
+                :class="[
+                  'border border-gray-300 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 sticky left-0 z-10 whitespace-nowrap transition-all',
+                  filaHover === hora ? 'bg-yellow-100 font-bold text-yellow-900 shadow-md' : ''
+                ]"
+              >
                 {{ hora }}
               </td>
               <td 
@@ -265,10 +279,12 @@
                 @mouseenter="continuarSeleccion(dia.valor, hora)"
                 @mouseup="finalizarSeleccion"
                 :class="[
-                  'border border-gray-300 px-2 py-3 cursor-pointer transition-colors',
+                  'border border-gray-300 px-2 py-3 cursor-pointer transition-all',
                   estaSeleccionado(dia.valor, hora) 
                     ? 'bg-blue-500 hover:bg-blue-600' 
-                    : 'bg-white hover:bg-blue-50'
+                    : filaHover === hora
+                      ? 'bg-yellow-100 hover:bg-blue-50'
+                      : 'bg-white hover:bg-blue-50'
                 ]"
               ></td>
             </tr>
@@ -366,6 +382,7 @@ const selecciones = ref<Record<number, Record<string, boolean>>>({});
 // Variables para el arrastre
 const seleccionando = ref(false);
 const modoSeleccion = ref<'seleccionar' | 'deseleccionar'>('seleccionar');
+const filaHover = ref<string | null>(null);
 
 const tieneSeleccion = computed(() => {
   return Object.values(selecciones.value).some(dia => 
@@ -450,7 +467,8 @@ const editarHorario = (horario: any, index: number) => {
       const minutosInicio = hInicio * 60 + mInicio;
       const minutosFin = hFin * 60 + mFin;
 
-      for (let m = minutosInicio; m < minutosFin; m += 15) {
+      // Ahora incluimos la hora de fin (<=) porque la última celda seleccionada es la hora de fin
+      for (let m = minutosInicio; m <= minutosFin; m += 15) {
         const h = Math.floor(m / 60);
         const min = m % 60;
         const hora = `${h.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
@@ -514,8 +532,9 @@ const obtenerHorariosDia = (dia: number) => {
       esConsecutivo(hora, horasSeleccionadas[index + 1]);
 
     if (!siguienteEsConsecutivo) {
-      const fin = sumarMinutos(hora, 15);
-      horarios.push({ inicio: inicio!, fin });
+      // La hora de fin es exactamente la hora de la última celda seleccionada
+      // Si el usuario selecciona la celda de 13:00, la hora de fin debe ser 13:00
+      horarios.push({ inicio: inicio!, fin: hora });
       inicio = null;
     }
     

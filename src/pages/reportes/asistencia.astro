@@ -1,0 +1,12 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import ReporteAsistencia from '@/components/reportes/ReporteAsistencia.vue';
+---
+
+<Layout title="Reporte de Asistencia - Sistema de Asistencia">
+  <div class="min-h-screen bg-white pt-32 py-8 px-4">
+    <div class="max-w-[1600px] mx-auto">
+      <ReporteAsistencia client:load />
+    </div>
+  </div>
+</Layout>

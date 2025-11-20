@@ -20,7 +20,7 @@
         :key="index"
         class="bg-white rounded-lg p-4 border-2 shadow-md hover:shadow-lg transition-all"
         :class="[
-          grupo.estado === 'PUNTUAL' ? 'border-green-300' : 
+          grupo.estado === 'ASISTIO' ? 'border-green-300' : 
           grupo.estado === 'TARDE' ? 'border-yellow-300' : 
           grupo.estado === 'FALTA' ? 'border-red-300' : 'border-gray-200'
         ]"
@@ -33,21 +33,23 @@
           </div>
           
           <!-- Badge de Estado -->
-          <div v-if="grupo.estado && grupo.estado !== 'ASISTIO'" class="flex items-center gap-2">
+          <div v-if="grupo.estado" class="flex items-center gap-2">
             <span 
               :class="[
                 'px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5',
-                grupo.estado === 'PUNTUAL' ? 'bg-green-100 text-green-700 border-2 border-green-300' :
+                grupo.estado === 'ASISTIO' ? 'bg-green-100 text-green-700 border-2 border-green-300' :
                 grupo.estado === 'TARDE' ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' :
-                'bg-red-100 text-red-700 border-2 border-red-300'
+                grupo.estado === 'FALTA' ? 'bg-red-100 text-red-700 border-2 border-red-300' :
+                grupo.estado === 'JUSTIFICADO' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' :
+                'bg-purple-100 text-purple-700 border-2 border-purple-300'
               ]"
             >
               <Icon 
-                :icon="grupo.estado === 'PUNTUAL' ? 'mdi:check-circle' : grupo.estado === 'TARDE' ? 'mdi:clock-alert' : 'mdi:alert-circle'"
+                :icon="grupo.estado === 'ASISTIO' ? 'mdi:check-circle' : grupo.estado === 'TARDE' ? 'mdi:clock-alert' : grupo.estado === 'FALTA' ? 'mdi:alert-circle' : grupo.estado === 'JUSTIFICADO' ? 'mdi:file-document-check' : 'mdi:calendar-remove'"
                 width="14" 
                 height="14" 
               />
-              {{ grupo.estado }}
+              {{ grupo.estado === 'ASISTIO' ? 'PUNTUAL' : grupo.estado }}
             </span>
           </div>
         </div>

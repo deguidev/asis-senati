@@ -50,14 +50,36 @@
                 <Icon icon="mdi:clock-outline" width="18" height="18" />
                 <span class="text-sm">Horarios</span>
               </a>
+              <div class="border-t border-gray-200 my-1"></div>
+              <a href="/gestion/configuracion" @click="menuGestionAbierto = false" class="flex items-center gap-3 px-4 py-2 hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700">
+                <Icon icon="mdi:cog-outline" width="18" height="18" />
+                <span class="text-sm">Configuración</span>
+              </a>
             </div>
           </div>
 
-          <!-- Reportes -->
-          <a href="#reportes" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700">
-            <Icon icon="mdi:chart-box" width="20" height="20" />
-            <span class="text-sm font-medium">Reportes</span>
-          </a>
+          <!-- Reportes (con submenú) -->
+          <div class="relative" ref="menuReportesRef">
+            <button 
+              @click="menuReportesAbierto = !menuReportesAbierto"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700"
+            >
+              <Icon icon="mdi:chart-box" width="20" height="20" />
+              <span class="text-sm font-medium">Reportes</span>
+              <Icon icon="mdi:chevron-down" width="16" height="16" />
+            </button>
+
+            <!-- Dropdown Reportes -->
+            <div 
+              v-if="menuReportesAbierto"
+              class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50"
+            >
+              <a href="/reportes/asistencia" @click="menuReportesAbierto = false" class="flex items-center gap-3 px-4 py-2 hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700">
+                <Icon icon="mdi:calendar-check" width="18" height="18" />
+                <span class="text-sm">Asistencia</span>
+              </a>
+            </div>
+          </div>
 
           <!-- Menú de Usuario Desktop -->
           <div class="relative ml-2" ref="menuUsuarioRef">
@@ -166,14 +188,39 @@
                 <Icon icon="mdi:clock-outline" width="18" height="18" />
                 <span class="text-sm">Horarios</span>
               </a>
+              <div class="border-t border-gray-200 my-1 mx-4"></div>
+              <a href="/gestion/configuracion" @click="menuAbierto = false" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-600 hover:text-blue-700">
+                <Icon icon="mdi:cog-outline" width="18" height="18" />
+                <span class="text-sm">Configuración</span>
+              </a>
             </div>
           </div>
 
-          <!-- Reportes -->
-          <a href="#reportes" @click="menuAbierto = false" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700">
-            <Icon icon="mdi:chart-box" width="20" height="20" />
-            <span class="font-medium">Reportes</span>
-          </a>
+          <!-- Reportes (con submenú) -->
+          <div>
+            <button 
+              @click="menuReportesMovilAbierto = !menuReportesMovilAbierto"
+              class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700"
+            >
+              <div class="flex items-center gap-3">
+                <Icon icon="mdi:chart-box" width="20" height="20" />
+                <span class="font-medium">Reportes</span>
+              </div>
+              <Icon 
+                :icon="menuReportesMovilAbierto ? 'mdi:chevron-up' : 'mdi:chevron-down'" 
+                width="20" 
+                height="20" 
+              />
+            </button>
+            
+            <!-- Submenú Reportes Mobile -->
+            <div v-if="menuReportesMovilAbierto" class="ml-4 mt-1 space-y-1">
+              <a href="/reportes/asistencia" @click="menuAbierto = false" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-600 hover:text-blue-700">
+                <Icon icon="mdi:calendar-check" width="18" height="18" />
+                <span class="text-sm">Asistencia</span>
+              </a>
+            </div>
+          </div>
 
           <!-- Cerrar Sesión Mobile -->
           <button 
@@ -207,11 +254,14 @@ const menuAbierto = ref(false);
 const menuUsuarioAbierto = ref(false);
 const menuGestionAbierto = ref(false);
 const menuGestionMovilAbierto = ref(false);
+const menuReportesAbierto = ref(false);
+const menuReportesMovilAbierto = ref(false);
 const cerrandoSesion = ref(false);
 
 // Refs para detectar clicks fuera
 const menuGestionRef = ref<HTMLElement | null>(null);
 const menuUsuarioRef = ref<HTMLElement | null>(null);
+const menuReportesRef = ref<HTMLElement | null>(null);
 
 // Obtener iniciales del nombre del usuario
 const iniciales = computed(() => {
@@ -251,6 +301,11 @@ const handleClickOutside = (event: MouseEvent) => {
   // Cerrar menú de usuario
   if (menuUsuarioRef.value && !menuUsuarioRef.value.contains(event.target as Node)) {
     menuUsuarioAbierto.value = false;
+  }
+  
+  // Cerrar menú de reportes
+  if (menuReportesRef.value && !menuReportesRef.value.contains(event.target as Node)) {
+    menuReportesAbierto.value = false;
   }
 };
 

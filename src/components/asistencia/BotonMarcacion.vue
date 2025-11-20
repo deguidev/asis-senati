@@ -308,9 +308,9 @@ const calcularEstadoAsistencia = (horaReal: string, horaProgEntrada: string): st
   const diferencia = minutosReales - minutosProgramados;
 
   if (diferencia <= 0) {
-    return 'PUNTUAL';
+    return 'ASISTIO';
   } else if (diferencia <= toleranciaMinutos.value) {
-    return 'PUNTUAL'; // Dentro de la tolerancia
+    return 'ASISTIO'; 
   } else if (diferencia <= 30) {
     return 'TARDE';
   } else {
@@ -370,10 +370,11 @@ const registrarMarcacion = async () => {
       
       // Mensajes según el estado
       const mensajes = {
-        'PUNTUAL': '✓ ¡Excelente! Llegaste puntual 🎉',
+        'ASISTIO': '✓ ¡Excelente! Llegaste puntual 🎉',
         'TARDE': '⚠️ Llegaste tarde, pero dentro del margen',
         'FALTA': '❌ Llegaste muy tarde, se registra como falta',
-        'ASISTIO': '✓ Entrada registrada correctamente'
+        'JUSTIFICADO': '✓ Asistencia justificada',
+        'PERMISO': '✓ Permiso registrado'
       };
       
       mensajeResultado = mensajes[estadoAsistencia as keyof typeof mensajes];
