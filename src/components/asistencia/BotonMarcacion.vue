@@ -1,34 +1,88 @@
 <template>
   <div class="mb-5">
     <!-- Tabla de Horarios Semanales -->
-    <div v-if="horarioSemanal.length > 0" class="mb-4 bg-white rounded-lg shadow-md p-4 border border-gray-200">
+    <div v-if="horarioSemanal.length > 0" class="mb-4 bg-white rounded-lg shadow-md p-3 md:p-4 border border-gray-200">
       <h3 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
         <Icon icon="mdi:calendar-clock" width="18" height="18" class="text-blue-600" />
         Tu Horario de Hoy
       </h3>
       
-      <div class="grid grid-cols-7 gap-1 text-xs">
-        <div 
-          v-for="dia in diasSemana" 
-          :key="dia.valor"
-          :class="[
-            'text-center p-2 rounded-lg border-2 transition-all',
-            diaActual === dia.valor
-              ? 'bg-blue-50 border-blue-500 font-bold text-blue-700'
-              : 'bg-gray-50 border-gray-200 text-gray-600'
-          ]"
-        >
-          <div class="font-semibold mb-1">{{ dia.abrev }}</div>
-          <div v-if="horariosPorDia[dia.valor]" class="space-y-1">
-            <div 
-              v-for="(bloque, idx) in horariosPorDia[dia.valor]" 
-              :key="idx"
-              class="text-[10px] bg-white rounded px-1 py-0.5 border border-gray-300"
-            >
-              {{ bloque.entrada }}-{{ bloque.salida }}
+      <!-- Grid responsivo: 2 filas en móvil (4+3), 1 fila en desktop (7) -->
+      <div class="space-y-1.5 md:space-y-0">
+        <!-- Primera fila: 4 días en móvil, 7 en desktop -->
+        <div class="grid grid-cols-4 md:grid-cols-7 gap-1.5 md:gap-2 text-xs">
+          <div 
+            v-for="dia in diasSemana.slice(0, 4)" 
+            :key="dia.valor"
+            :class="[
+              'text-center p-2 md:p-2.5 rounded-lg border-2 transition-all',
+              diaActual === dia.valor
+                ? 'bg-blue-50 border-blue-500 font-bold text-blue-700 shadow-sm'
+                : 'bg-gray-50 border-gray-200 text-gray-600'
+            ]"
+          >
+            <div class="font-semibold mb-1 text-[10px] md:text-xs">{{ dia.abrev }}</div>
+            <div v-if="horariosPorDia[dia.valor]" class="space-y-1">
+              <div 
+                v-for="(bloque, idx) in horariosPorDia[dia.valor]" 
+                :key="idx"
+                class="text-[8px] md:text-[10px] bg-white rounded px-0.5 md:px-1 py-0.5 border border-gray-300 leading-tight"
+              >
+                {{ bloque.entrada }}<br class="md:hidden">-{{ bloque.salida }}
+              </div>
             </div>
+            <div v-else class="text-[9px] md:text-[10px] text-gray-400">-</div>
           </div>
-          <div v-else class="text-[10px] text-gray-400">-</div>
+          
+          <!-- Últimos 3 días solo en desktop -->
+          <div 
+            v-for="dia in diasSemana.slice(4)" 
+            :key="dia.valor"
+            :class="[
+              'hidden md:block text-center p-2.5 rounded-lg border-2 transition-all',
+              diaActual === dia.valor
+                ? 'bg-blue-50 border-blue-500 font-bold text-blue-700 shadow-sm'
+                : 'bg-gray-50 border-gray-200 text-gray-600'
+            ]"
+          >
+            <div class="font-semibold mb-1 text-xs">{{ dia.abrev }}</div>
+            <div v-if="horariosPorDia[dia.valor]" class="space-y-1">
+              <div 
+                v-for="(bloque, idx) in horariosPorDia[dia.valor]" 
+                :key="idx"
+                class="text-[10px] bg-white rounded px-1 py-0.5 border border-gray-300"
+              >
+                {{ bloque.entrada }}-{{ bloque.salida }}
+              </div>
+            </div>
+            <div v-else class="text-[10px] text-gray-400">-</div>
+          </div>
+        </div>
+        
+        <!-- Segunda fila: 3 días solo en móvil -->
+        <div class="grid grid-cols-3 gap-1.5 text-xs md:hidden">
+          <div 
+            v-for="dia in diasSemana.slice(4)" 
+            :key="dia.valor"
+            :class="[
+              'text-center p-2 rounded-lg border-2 transition-all',
+              diaActual === dia.valor
+                ? 'bg-blue-50 border-blue-500 font-bold text-blue-700 shadow-sm'
+                : 'bg-gray-50 border-gray-200 text-gray-600'
+            ]"
+          >
+            <div class="font-semibold mb-1 text-[10px]">{{ dia.abrev }}</div>
+            <div v-if="horariosPorDia[dia.valor]" class="space-y-1">
+              <div 
+                v-for="(bloque, idx) in horariosPorDia[dia.valor]" 
+                :key="idx"
+                class="text-[8px] bg-white rounded px-0.5 py-0.5 border border-gray-300 leading-tight"
+              >
+                {{ bloque.entrada }}<br>-{{ bloque.salida }}
+              </div>
+            </div>
+            <div v-else class="text-[9px] text-gray-400">-</div>
+          </div>
         </div>
       </div>
 
