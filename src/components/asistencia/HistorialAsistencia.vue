@@ -14,49 +14,88 @@
       No hay registros de asistencia hoy
     </div>
 
-    <div v-else class="flex flex-col gap-2">
+    <div v-else class="flex flex-col gap-3">
       <div 
         v-for="(grupo, index) in registrosAgrupados" 
         :key="index"
-        class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm hover:shadow transition-shadow"
+        class="bg-white rounded-lg p-4 border-2 shadow-md hover:shadow-lg transition-all"
+        :class="[
+          grupo.estado === 'PUNTUAL' ? 'border-green-300' : 
+          grupo.estado === 'TARDE' ? 'border-yellow-300' : 
+          grupo.estado === 'FALTA' ? 'border-red-300' : 'border-gray-200'
+        ]"
       >
+        <!-- Header con Estado -->
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+          <div class="flex items-center gap-2">
+            <Icon icon="mdi:calendar-check" width="20" height="20" class="text-gray-600" />
+            <span class="text-sm font-semibold text-gray-700">Registro #{{ index + 1 }}</span>
+          </div>
+          
+          <!-- Badge de Estado -->
+          <div v-if="grupo.estado && grupo.estado !== 'ASISTIO'" class="flex items-center gap-2">
+            <span 
+              :class="[
+                'px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5',
+                grupo.estado === 'PUNTUAL' ? 'bg-green-100 text-green-700 border-2 border-green-300' :
+                grupo.estado === 'TARDE' ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' :
+                'bg-red-100 text-red-700 border-2 border-red-300'
+              ]"
+            >
+              <Icon 
+                :icon="grupo.estado === 'PUNTUAL' ? 'mdi:check-circle' : grupo.estado === 'TARDE' ? 'mdi:clock-alert' : 'mdi:alert-circle'"
+                width="14" 
+                height="14" 
+              />
+              {{ grupo.estado }}
+            </span>
+          </div>
+        </div>
+
         <!-- Entrada -->
-        <div v-if="grupo.entrada" class="flex items-center justify-between py-1.5 border-l-4 border-l-green-500 pl-3">
+        <div v-if="grupo.entrada" class="flex items-center justify-between py-2 px-3 bg-green-50 rounded-lg border border-green-200 mb-2">
           <div class="flex items-center gap-3 flex-1">
-            <Icon icon="mdi:login" class="text-green-500" width="22" height="22" />
+            <div class="p-2 bg-green-100 rounded-lg">
+              <Icon icon="mdi:login" class="text-green-600" width="24" height="24" />
+            </div>
             <div class="flex flex-col">
-              <span class="text-xs text-gray-500">Entrada</span>
-              <span class="text-sm font-bold text-gray-800">{{ formatearHoraCompleta(grupo.entrada) }}</span>
+              <span class="text-xs font-medium text-green-600">Hora de Entrada</span>
+              <span class="text-base font-bold text-gray-800">{{ formatearHora(grupo.entrada) }}</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700 rounded-full border border-green-200">ENTRADA</span>
             <!-- Botón de Marcar Salida si no hay salida -->
             <button 
               v-if="!grupo.salida"
               @click="marcarSalida(grupo)"
               :disabled="procesando"
-              class="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed animate-bounce"
+              class="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed animate-bounce"
             >
-              <Icon icon="mdi:logout" width="20" height="20" class="animate-pulse" />
+              <Icon icon="mdi:logout" width="18" height="18" class="animate-pulse" />
               Marcar Salida
             </button>
           </div>
         </div>
 
-        <!-- Línea separadora si hay entrada y salida -->
-        <div v-if="grupo.entrada && grupo.salida" class="my-2 border-t border-gray-300 border-dashed"></div>
-
         <!-- Salida -->
-        <div v-if="grupo.salida" class="flex items-center justify-between py-1.5 border-l-4 border-l-red-500 pl-3">
+        <div v-if="grupo.salida" class="flex items-center justify-between py-2 px-3 bg-red-50 rounded-lg border border-red-200">
           <div class="flex items-center gap-3">
-            <Icon icon="mdi:logout" class="text-red-500" width="22" height="22" />
+            <div class="p-2 bg-red-100 rounded-lg">
+              <Icon icon="mdi:logout" class="text-red-600" width="24" height="24" />
+            </div>
             <div class="flex flex-col">
-              <span class="text-xs text-gray-500">Salida</span>
-              <span class="text-sm font-bold text-gray-800">{{ formatearHoraCompleta(grupo.salida) }}</span>
+              <span class="text-xs font-medium text-red-600">Hora de Salida</span>
+              <span class="text-base font-bold text-gray-800">{{ formatearHora(grupo.salida) }}</span>
             </div>
           </div>
-          <span class="px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700 rounded-full border border-red-200">SALIDA</span>
+        </div>
+
+        <!-- Tiempo Total si hay entrada y salida -->
+        <div v-if="grupo.entrada && grupo.salida" class="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center justify-center gap-2">
+          <Icon icon="mdi:clock-outline" width="16" height="16" class="text-blue-600" />
+          <span class="text-xs font-semibold text-blue-700">
+            Tiempo total: {{ calcularTiempoTotal(grupo.entrada, grupo.salida) }}
+          </span>
         </div>
       </div>
     </div>
@@ -67,6 +106,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { Icon } from '@iconify/vue';
+import { getFechaActual, getHoraActual } from '@/lib/dateUtils';
 
 const props = defineProps({
   personaId: {
@@ -94,8 +134,8 @@ const cargarHistorial = async () => {
   cargando.value = true;
   try {
     // Obtener fecha actual en cada carga para asegurar que siempre sea del día de hoy
-    const ahora = new Date();
-    const hoy = ahora.toISOString().split('T')[0];
+    const hoy = getFechaActual(); // Usar timezone de Lima
+    console.log('Fecha actual (Lima):', hoy);
 
     // Obtener el período activo
     const { data: periodoActivo } = await supabase
@@ -132,6 +172,7 @@ const cargarHistorial = async () => {
         id: reg.id,
         entrada: reg.hora_entrada_real,
         salida: reg.hora_salida_real,
+        estado: reg.estado || 'ASISTIO',
         fecha: reg.fecha,
         periodo_id: reg.periodo_id
       });
@@ -147,28 +188,32 @@ const cargarHistorial = async () => {
   }
 };
 
-const formatearHoraCompleta = (hora: string) => {
+const formatearHora = (hora: string) => {
   if (!hora) return '';
-  
-  // Obtener fecha actual
-  const ahora = new Date();
-  const fechaStr = ahora.toLocaleDateString('es-ES', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric' 
-  });
-  
   // Formatear hora HH:MM:SS
-  const horaFormateada = hora.substring(0, 8);
+  return hora.substring(0, 8);
+};
+
+const calcularTiempoTotal = (entrada: string, salida: string) => {
+  if (!entrada || !salida) return '0h 0m';
   
-  return `${fechaStr} - ${horaFormateada}`;
+  const [hE, mE, sE] = entrada.split(':').map(Number);
+  const [hS, mS, sS] = salida.split(':').map(Number);
+  
+  const minutosEntrada = hE * 60 + mE;
+  const minutosSalida = hS * 60 + mS;
+  const diferenciaMinutos = minutosSalida - minutosEntrada;
+  
+  const horas = Math.floor(diferenciaMinutos / 60);
+  const minutos = diferenciaMinutos % 60;
+  
+  return `${horas}h ${minutos}m`;
 };
 
 const marcarSalida = async (grupo: any) => {
   procesando.value = true;
   try {
-    const ahora = new Date();
-    const hora = ahora.toTimeString().split(' ')[0];
+    const hora = getHoraActual(); // Usar timezone de Lima
 
     const { error } = await supabase
       .from('asistencia')

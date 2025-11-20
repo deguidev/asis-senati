@@ -6,7 +6,7 @@
         <Icon icon="mdi:clock-outline" width="28" height="28" class="text-blue-600" />
         Gestión de Horarios
       </h2>
-      <p class="text-gray-600 text-sm mt-1">Asigna horarios a docentes y personal</p>
+      <p class="text-gray-600 text-sm mt-1">Asigna horarios semanales a docentes y personal</p>
     </div>
 
     <!-- Paso 1: Buscar Persona -->
