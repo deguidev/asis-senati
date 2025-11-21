@@ -171,7 +171,7 @@ const mensaje = ref('');
 const tipoMensaje = ref<'success' | 'error'>('success');
 const mostrarBoton = ref(true);
 const horarioSemanal = ref<any[]>([]);
-const toleranciaMinutos = ref(5); // Default 5 minutos
+const toleranciaMinutos = ref(15); // Default 15 minutos
 const diaActual = ref(getDiaSemanaActual());
 
 const diasSemana = [
@@ -219,19 +219,37 @@ watch(() => props.personaId, async () => {
 
 const cargarConfiguracion = async () => {
   try {
+    // Obtener periodo activo
+    const { data: periodoActivo, error: periodoError } = await supabase
+      .from('periodos')
+      .select('id')
+      .eq('estado', true)
+      .single();
+
+    if (periodoError || !periodoActivo) {
+      console.log('No hay periodo activo, usando tolerancia por defecto: 15 minutos');
+      toleranciaMinutos.value = 10;
+      return;
+    }
+
+    // Obtener configuración del periodo activo
     const { data, error } = await supabase
       .from('config_asistencia')
-      .select('minutos_tolerancia')
+      .select('tolerancia_presente_min')
+      .eq('periodo_id', periodoActivo.id)
+      .eq('estado', true)
       .single();
 
     if (error) throw error;
     
-    if (data && data.minutos_tolerancia) {
-      toleranciaMinutos.value = data.minutos_tolerancia;
+    if (data && data.tolerancia_presente_min) {
+      toleranciaMinutos.value = data.tolerancia_presente_min;
+    } else {
+      toleranciaMinutos.value = 15;
     }
   } catch (error) {
-    console.log('Usando tolerancia por defecto: 5 minutos');
-    toleranciaMinutos.value = 5;
+    console.log('Error al cargar configuración, usando tolerancia por defecto: 15 minutos');
+    toleranciaMinutos.value = 15;
   }
 };
 

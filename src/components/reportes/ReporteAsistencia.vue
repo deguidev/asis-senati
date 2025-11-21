@@ -183,110 +183,147 @@
       <!-- Columna Grande: Tabla de Asistencia -->
       <div class="lg:col-span-3">
         <div class="bg-white rounded-xl shadow-md p-5 border border-gray-200">
-          <div class="flex items-center justify-between mb-4">
+          <div class="mb-4">
             <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
               <Icon icon="mdi:calendar-month" width="22" height="22" class="text-blue-600" />
               Registro de {{ obtenerNombreMes(mesSeleccionado) }}
             </h3>
-            <button
-              @click="exportarExcel"
-              class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-            >
-              <Icon icon="mdi:file-excel" width="18" height="18" />
-              Exportar
-            </button>
           </div>
 
-          <!-- Tabla de Asistencia -->
+          <!-- Tabla de Asistencia Dinámica -->
           <div class="overflow-x-auto">
             <table class="w-full border-collapse text-xs">
               <thead>
                 <tr class="bg-gray-100">
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700 sticky left-0 bg-gray-100 z-10">Día</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Fecha</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Estado</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Entrada Prog.</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Entrada Real</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Salida Prog.</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Salida Real</th>
-                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">Observación</th>
+                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700 sticky left-0 bg-gray-100 z-10" rowspan="2">Día</th>
+                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700" rowspan="2">Fecha</th>
+                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700" rowspan="2">Horarios</th>
+                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700" colspan="2">Entrada</th>
+                  <th class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700" colspan="2">Salida</th>
+                </tr>
+                <tr class="bg-gray-100">
+                  <th class="border border-gray-300 px-2 py-1 text-center font-bold text-gray-600 text-[10px]">Prog.</th>
+                  <th class="border border-gray-300 px-2 py-1 text-center font-bold text-gray-600 text-[10px]">Real</th>
+                  <th class="border border-gray-300 px-2 py-1 text-center font-bold text-gray-600 text-[10px]">Prog.</th>
+                  <th class="border border-gray-300 px-2 py-1 text-center font-bold text-gray-600 text-[10px]">Real</th>
                 </tr>
               </thead>
               <tbody>
-                <tr 
-                  v-for="dia in diasDelMes" 
-                  :key="dia.fecha"
-                  :class="[
-                    'hover:bg-gray-50 transition-colors',
-                    dia.esFinde ? 'bg-gray-100' : ''
-                  ]"
-                >
-                  <!-- Día -->
-                  <td class="border border-gray-300 px-2 py-2 text-center font-medium sticky left-0 bg-white z-10">
-                    <div class="flex flex-col items-center">
-                      <span class="text-xs font-bold text-gray-700">{{ dia.diaNombre }}</span>
-                      <span class="text-[10px] text-gray-500">{{ dia.diaNumero }}</span>
-                    </div>
-                  </td>
-
-                  <!-- Fecha -->
-                  <td class="border border-gray-300 px-2 py-2 text-center text-gray-600">
-                    {{ dia.fechaFormateada }}
-                  </td>
-
-                  <!-- Estado -->
-                  <td class="border border-gray-300 px-2 py-2 text-center">
-                    <span 
-                      v-if="dia.asistencia"
+                <template v-for="dia in diasDelMes" :key="dia.fecha">
+                  <!-- Si tiene múltiples horarios, crear una fila por cada horario -->
+                  <template v-if="dia.horarios && dia.horarios.length > 0">
+                    <tr 
+                      v-for="(horario, index) in dia.horarios" 
+                      :key="`${dia.fecha}-${index}`"
                       :class="[
-                        'px-2 py-1 rounded-full text-[10px] font-bold',
-                        dia.asistencia.estado === 'ASISTIO' ? 'bg-green-100 text-green-700' :
-                        dia.asistencia.estado === 'TARDE' ? 'bg-yellow-100 text-yellow-700' :
-                        dia.asistencia.estado === 'FALTA' ? 'bg-red-100 text-red-700' :
-                        dia.asistencia.estado === 'JUSTIFICADO' ? 'bg-blue-100 text-blue-700' :
-                        'bg-purple-100 text-purple-700'
+                        'hover:bg-gray-50 transition-colors',
+                        dia.diaSemana === 0 ? 'bg-gray-100' : '',
+                        index > 0 ? 'border-t-0' : ''
                       ]"
                     >
-                      {{ dia.asistencia.estado === 'ASISTIO' ? 'PUNTUAL' : dia.asistencia.estado }}
-                    </span>
-                    <span v-else-if="dia.esFinde" class="text-gray-400 text-[10px]">-</span>
-                    <span v-else-if="!dia.tieneHorario" class="text-gray-400 text-[10px]">Sin horario</span>
-                    <span v-else class="text-red-400 text-[10px] font-bold">SIN REGISTRO</span>
-                  </td>
+                      <!-- Día (solo en la primera fila) -->
+                      <td 
+                        v-if="index === 0"
+                        :rowspan="dia.horarios.length"
+                        class="border border-gray-300 px-2 py-2 text-center font-medium sticky left-0 bg-white z-10"
+                      >
+                        <div class="flex flex-col items-center">
+                          <span class="text-xs font-bold text-gray-700">{{ dia.diaNombre }}</span>
+                          <span class="text-[10px] text-gray-500">{{ dia.diaNumero }}</span>
+                        </div>
+                      </td>
 
-                  <!-- Entrada Programada -->
-                  <td class="border border-gray-300 px-2 py-2 text-center text-gray-600">
-                    {{ dia.horario?.hora_entrada_prog || '-' }}
-                  </td>
+                      <!-- Fecha (solo en la primera fila) -->
+                      <td 
+                        v-if="index === 0"
+                        :rowspan="dia.horarios.length"
+                        class="border border-gray-300 px-2 py-2 text-center text-gray-600"
+                      >
+                        {{ dia.fechaFormateada }}
+                      </td>
 
-                  <!-- Entrada Real -->
-                  <td 
-                    class="border border-gray-300 px-2 py-2 text-center font-bold"
+                      <!-- Número de Horario -->
+                      <td class="border border-gray-300 px-2 py-2 text-center">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">
+                          H{{ index + 1 }}
+                        </span>
+                      </td>
+
+                      <!-- Entrada Programada -->
+                      <td class="border border-gray-300 px-2 py-2 text-center text-gray-600 font-medium">
+                        {{ horario.hora_entrada_prog }}
+                      </td>
+
+                      <!-- Entrada Real -->
+                      <td 
+                        class="border border-gray-300 px-2 py-2 text-center"
+                        :class="[
+                          calcularEstadoEntrada(horario, dia.fecha).color
+                        ]"
+                      >
+                        <div class="flex flex-col items-center gap-1">
+                          <span class="font-bold text-sm">{{ horario.asistencia?.hora_entrada_real || '-' }}</span>
+                          <span 
+                            :class="[
+                              'px-2 py-0.5 rounded-full text-[9px] font-bold',
+                              calcularEstadoEntrada(horario, dia.fecha).clase
+                            ]"
+                          >
+                            {{ calcularEstadoEntrada(horario, dia.fecha).texto }}
+                          </span>
+                        </div>
+                      </td>
+
+                      <!-- Salida Programada -->
+                      <td class="border border-gray-300 px-2 py-2 text-center text-gray-600 font-medium">
+                        {{ horario.hora_salida_prog }}
+                      </td>
+
+                      <!-- Salida Real -->
+                      <td 
+                        class="border border-gray-300 px-2 py-2 text-center"
+                        :class="[
+                          calcularEstadoSalida(horario, dia.fecha).color
+                        ]"
+                      >
+                        <div class="flex flex-col items-center gap-1">
+                          <span class="font-bold text-sm">{{ horario.asistencia?.hora_salida_real || '-' }}</span>
+                          <span 
+                            v-if="horario.asistencia?.hora_salida_real || esFechaAnteriorAHoy(dia.fecha)"
+                            :class="[
+                              'px-2 py-0.5 rounded-full text-[9px] font-bold',
+                              calcularEstadoSalida(horario, dia.fecha).clase
+                            ]"
+                          >
+                            {{ calcularEstadoSalida(horario, dia.fecha).texto }}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+
+                  <!-- Si no tiene horarios (fin de semana o sin horario) -->
+                  <tr 
+                    v-else
                     :class="[
-                      dia.asistencia?.estado === 'ASISTIO' ? 'text-green-700' :
-                      dia.asistencia?.estado === 'TARDE' ? 'text-yellow-700' :
-                      dia.asistencia?.estado === 'FALTA' ? 'text-red-700' :
-                      'text-gray-600'
+                      'hover:bg-gray-50 transition-colors',
+                      dia.diaSemana === 0 ? 'bg-gray-100' : ''
                     ]"
                   >
-                    {{ dia.asistencia?.hora_entrada_real || '-' }}
-                  </td>
-
-                  <!-- Salida Programada -->
-                  <td class="border border-gray-300 px-2 py-2 text-center text-gray-600">
-                    {{ dia.horario?.hora_salida_prog || '-' }}
-                  </td>
-
-                  <!-- Salida Real -->
-                  <td class="border border-gray-300 px-2 py-2 text-center font-bold text-gray-700">
-                    {{ dia.asistencia?.hora_salida_real || '-' }}
-                  </td>
-
-                  <!-- Observación -->
-                  <td class="border border-gray-300 px-2 py-2 text-center text-gray-500 text-[10px]">
-                    {{ dia.observacion || '-' }}
-                  </td>
-                </tr>
+                    <td class="border border-gray-300 px-2 py-2 text-center font-medium sticky left-0 bg-white z-10">
+                      <div class="flex flex-col items-center">
+                        <span class="text-xs font-bold text-gray-700">{{ dia.diaNombre }}</span>
+                        <span class="text-[10px] text-gray-500">{{ dia.diaNumero }}</span>
+                      </div>
+                    </td>
+                    <td class="border border-gray-300 px-2 py-2 text-center text-gray-600">
+                      {{ dia.fechaFormateada }}
+                    </td>
+                    <td class="border border-gray-300 px-2 py-2 text-center text-gray-400 text-[10px]" colspan="5">
+                      {{ dia.diaSemana === 0 ? 'Fin de semana' : 'Sin horario asignado' }}
+                    </td>
+                  </tr>
+                </template>
               </tbody>
             </table>
           </div>
@@ -394,12 +431,53 @@ const horariosAgrupados = computed(() => {
 });
 
 const resumen = computed(() => {
-  const diasLaborables = diasDelMes.value.filter(d => !d.esFinde && d.tieneHorario).length;
-  const asistencias = diasDelMes.value.filter(d => d.asistencia?.estado === 'ASISTIO').length;
-  const tardanzas = diasDelMes.value.filter(d => d.asistencia?.estado === 'TARDE').length;
-  const faltas = diasDelMes.value.filter(d => !d.asistencia && !d.esFinde && d.tieneHorario).length;
+  let totalHorarios = 0;
+  let entradasPuntuales = 0;
+  let tardanzas = 0;
+  let faltas = 0;
+  let salidasAnticipadas = 0;
 
-  return { diasLaborables, asistencias, tardanzas, faltas };
+  diasDelMes.value.forEach(dia => {
+    if (dia.horarios && dia.horarios.length > 0) {
+      dia.horarios.forEach((horario: any) => {
+        totalHorarios++;
+        
+        // Contar basándose en el estado de la BD
+        if (horario.asistencia) {
+          const estado = horario.asistencia.estado;
+          
+          if (estado === 'ASISTIO') {
+            entradasPuntuales++;
+          } else if (estado === 'TARDE') {
+            tardanzas++;
+          } else if (estado === 'FALTA') {
+            faltas++;
+          }
+          
+          // Contar salidas anticipadas
+          if (horario.asistencia.hora_salida_real) {
+            const estadoSalida = calcularEstadoSalida(horario, dia.fecha);
+            if (estadoSalida.texto.includes('ANTICIPADA')) {
+              salidasAnticipadas++;
+            }
+          }
+        } else {
+          // Si no tiene asistencia y la fecha ya pasó, contar como falta
+          if (esFechaAnteriorAHoy(dia.fecha)) {
+            faltas++;
+          }
+        }
+      });
+    }
+  });
+
+  return { 
+    diasLaborables: totalHorarios,
+    asistencias: entradasPuntuales,
+    tardanzas,
+    faltas,
+    salidasAnticipadas
+  };
 });
 
 const buscarPersonas = async () => {
@@ -559,11 +637,46 @@ const generarDiasDelMes = () => {
     const diaSemana = fecha.getDay();
     const fechaStr = `${anio}-${mesSeleccionado.value}-${dia.toString().padStart(2, '0')}`;
     
-    // Buscar horario para este día
-    const horario = horarios.value.find(h => h.dia_semana === diaSemana);
+    // Buscar TODOS los horarios para este día de la semana
+    const horariosDelDia = horarios.value.filter(h => {
+      // Verificar que el día de la semana coincida
+      if (h.dia_semana !== diaSemana) return false;
+      
+      // Verificar que la fecha esté dentro del rango del horario
+      const fechaActual = new Date(fechaStr);
+      const fechaInicio = new Date(h.fecha_inicio);
+      const fechaFin = new Date(h.fecha_fin);
+      
+      return fechaActual >= fechaInicio && fechaActual <= fechaFin;
+    });
     
-    // Buscar asistencia para este día
-    const asistencia = asistencias.value.find(a => a.fecha === fechaStr);
+    // Buscar TODAS las asistencias para este día
+    const asistenciasDelDia = asistencias.value.filter(a => a.fecha === fechaStr);
+    
+    // Crear estructura de horarios con sus asistencias correspondientes
+    const horariosConAsistencia = horariosDelDia.map(horario => {
+      // Buscar la asistencia que corresponde a este horario
+      // Comparando la hora de entrada programada con la hora de entrada real
+      const asistenciaCorrespondiente = asistenciasDelDia.find(a => {
+        if (!a.hora_entrada_real) return false;
+        
+        // Calcular diferencia en minutos entre entrada programada y real
+        const [hProg, mProg] = horario.hora_entrada_prog.split(':').map(Number);
+        const [hReal, mReal] = a.hora_entrada_real.split(':').map(Number);
+        const minutosProg = hProg * 60 + mProg;
+        const minutosReal = hReal * 60 + mReal;
+        const diferencia = Math.abs(minutosReal - minutosProg);
+        
+        // Si la diferencia es menor a 2 horas (120 min), probablemente es el mismo horario
+        return diferencia < 120;
+      });
+      
+      return {
+        hora_entrada_prog: horario.hora_entrada_prog,
+        hora_salida_prog: horario.hora_salida_prog,
+        asistencia: asistenciaCorrespondiente
+      };
+    });
     
     dias.push({
       fecha: fechaStr,
@@ -571,11 +684,10 @@ const generarDiasDelMes = () => {
       diaNumero: dia,
       diaNombre: diasSemana[diaSemana],
       diaSemana: diaSemana,
-      esFinde: diaSemana === 0 || diaSemana === 6,
-      tieneHorario: !!horario,
-      horario: horario,
-      asistencia: asistencia,
-      observacion: asistencia ? '' : (!horario ? 'Sin horario' : (diaSemana === 0 || diaSemana === 6) ? 'Fin de semana' : '')
+      esFinde: diaSemana === 0,
+      tieneHorario: horariosDelDia.length > 0,
+      horarios: horariosConAsistencia.length > 0 ? horariosConAsistencia : null,
+      observacion: ''
     });
   }
   
@@ -593,13 +705,162 @@ const formatearFecha = (fecha: string) => {
   });
 };
 
+// Verificar si una fecha es anterior a hoy
+const esFechaAnteriorAHoy = (fecha: string) => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  
+  const fechaComparar = new Date(fecha + 'T00:00:00');
+  
+  return fechaComparar < hoy;
+};
+
+// Calcular estado de entrada basado en el campo estado de la BD
+const calcularEstadoEntrada = (horario: any, fecha: string) => {
+  // Si no tiene asistencia registrada
+  if (!horario.asistencia) {
+    // Si la fecha ya pasó, es FALTA
+    if (esFechaAnteriorAHoy(fecha)) {
+      return {
+        texto: 'FALTA',
+        clase: 'bg-red-100 text-red-700',
+        color: 'text-red-700 bg-red-50'
+      };
+    }
+    // Si es hoy o futuro, aún no hay registro
+    return {
+      texto: 'SIN REGISTRO',
+      clase: 'bg-gray-100 text-gray-600',
+      color: 'text-gray-600'
+    };
+  }
+
+  // Usar el campo estado de la base de datos
+  const estado = horario.asistencia.estado;
+
+  // Mapear estados de la BD a visualización
+  switch (estado) {
+    case 'ASISTIO':
+      return {
+        texto: 'PUNTUAL',
+        clase: 'bg-green-100 text-green-700',
+        color: 'text-green-700 bg-green-50'
+      };
+    case 'TARDE':
+      // Calcular minutos de tardanza si hay horas disponibles
+      if (horario.hora_entrada_prog && horario.asistencia.hora_entrada_real) {
+        const [hProg, mProg] = horario.hora_entrada_prog.split(':').map(Number);
+        const [hReal, mReal] = horario.asistencia.hora_entrada_real.split(':').map(Number);
+        const minutosProg = hProg * 60 + mProg;
+        const minutosReal = hReal * 60 + mReal;
+        const minutosTarde = minutosReal - minutosProg;
+        return {
+          texto: `TARDE (${minutosTarde}m)`,
+          clase: 'bg-yellow-100 text-yellow-700',
+          color: 'text-yellow-700 bg-yellow-50'
+        };
+      }
+      return {
+        texto: 'TARDE',
+        clase: 'bg-yellow-100 text-yellow-700',
+        color: 'text-yellow-700 bg-yellow-50'
+      };
+    case 'FALTA':
+      return {
+        texto: 'FALTA',
+        clase: 'bg-red-100 text-red-700',
+        color: 'text-red-700 bg-red-50'
+      };
+    case 'JUSTIFICADO':
+      return {
+        texto: 'JUSTIFICADO',
+        clase: 'bg-blue-100 text-blue-700',
+        color: 'text-blue-700 bg-blue-50'
+      };
+    case 'PERMISO':
+      return {
+        texto: 'PERMISO',
+        clase: 'bg-purple-100 text-purple-700',
+        color: 'text-purple-700 bg-purple-50'
+      };
+    default:
+      return {
+        texto: 'SIN REGISTRO',
+        clase: 'bg-gray-100 text-gray-600',
+        color: 'text-gray-600'
+      };
+  }
+};
+
+// Calcular estado de salida
+const calcularEstadoSalida = (horario: any, fecha: string) => {
+  // Si no tiene asistencia registrada
+  if (!horario.asistencia) {
+    // Si la fecha ya pasó, es FALTA
+    if (esFechaAnteriorAHoy(fecha)) {
+      return {
+        texto: 'FALTA',
+        clase: 'bg-red-100 text-red-700',
+        color: 'text-red-700 bg-red-50'
+      };
+    }
+    return {
+      texto: 'SIN REGISTRO',
+      clase: 'bg-gray-100 text-gray-600',
+      color: 'text-gray-600'
+    };
+  }
+
+  // Si el estado es FALTA, mostrarlo
+  if (horario.asistencia.estado === 'FALTA') {
+    return {
+      texto: 'FALTA',
+      clase: 'bg-red-100 text-red-700',
+      color: 'text-red-700 bg-red-50'
+    };
+  }
+
+  // Si no tiene marcación de salida pero sí tiene entrada
+  if (!horario.asistencia.hora_salida_real) {
+    return {
+      texto: 'SIN SALIDA',
+      clase: 'bg-gray-100 text-gray-600',
+      color: 'text-gray-600'
+    };
+  }
+
+  // Si tiene salida, validar si es anticipada
+  if (horario.hora_salida_prog && horario.asistencia.hora_salida_real) {
+    const [hProg, mProg] = horario.hora_salida_prog.split(':').map(Number);
+    const [hReal, mReal] = horario.asistencia.hora_salida_real.split(':').map(Number);
+    
+    const minutosProg = hProg * 60 + mProg;
+    const minutosReal = hReal * 60 + mReal;
+    
+    const diferencia = minutosReal - minutosProg;
+
+    // Si salió antes de tiempo (más de 15 minutos antes)
+    if (diferencia < -15) {
+      const minutosAntes = Math.abs(diferencia);
+      return {
+        texto: `SALIDA ANTICIPADA (${minutosAntes}m)`,
+        clase: 'bg-orange-100 text-orange-700',
+        color: 'text-orange-700 bg-orange-50'
+      };
+    }
+  }
+
+  // Salida normal
+  return {
+    texto: 'SALIDA OK',
+    clase: 'bg-green-100 text-green-700',
+    color: 'text-green-700 bg-green-50'
+  };
+};
+
 const obtenerNombreMes = (mes: string) => {
   const mesObj = todosMeses.find(m => m.valor === mes);
   return mesObj?.nombre || '';
-};
-
-const exportarExcel = () => {
-  alert('Función de exportar a Excel en desarrollo');
 };
 
 // Cargar periodos al montar

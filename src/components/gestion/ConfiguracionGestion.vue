@@ -115,16 +115,15 @@
 
         <!-- Configuraciones en Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Tolerancias -->
+          <!-- Tolerancia -->
           <div class="bg-green-50 rounded-lg p-3 border border-green-200">
             <div class="flex items-center gap-2 mb-2">
               <Icon icon="mdi:clock-check" width="18" height="18" class="text-green-600" />
-              <h4 class="text-sm font-semibold text-green-800">Tolerancias</h4>
+              <h4 class="text-sm font-semibold text-green-800">Tolerancia</h4>
             </div>
             <div class="space-y-1 text-xs text-gray-700">
-              <p><span class="font-medium">Presente:</span> {{ config.tolerancia_presente_min }} min</p>
-              <p><span class="font-medium">Tarde:</span> {{ config.tolerancia_tarde_min }} min</p>
-              <p><span class="font-medium">Falta:</span> {{ config.tolerancia_falta_min }} min</p>
+              <p><span class="font-medium">Tolerancia:</span> {{ config.tolerancia_presente_min }} minutos</p>
+              <p class="text-[10px] text-gray-500 mt-1">Dentro de esta tolerancia se marca como PUNTUAL</p>
             </div>
           </div>
 
@@ -223,46 +222,27 @@
             </select>
           </div>
 
-          <!-- Tolerancias -->
+          <!-- Tolerancia -->
           <div class="bg-green-50 rounded-lg p-4 border border-green-200">
             <h4 class="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
               <Icon icon="mdi:clock-check" width="20" height="20" />
-              Tolerancias (minutos)
+              Tolerancia
             </h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Presente</label>
-                <input
-                  v-model.number="formulario.tolerancia_presente_min"
-                  type="number"
-                  min="0"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="10"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tarde</label>
-                <input
-                  v-model.number="formulario.tolerancia_tarde_min"
-                  type="number"
-                  min="0"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="20"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Falta</label>
-                <input
-                  v-model.number="formulario.tolerancia_falta_min"
-                  type="number"
-                  min="0"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="120"
-                />
-              </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Tolerancia (minutos) <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model.number="formulario.tolerancia_presente_min"
+                type="number"
+                min="0"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="15"
+              />
+              <p class="text-xs text-gray-500 mt-1">
+                Si marca dentro de esta tolerancia se considera PUNTUAL, fuera de ella se marca como TARDE
+              </p>
             </div>
           </div>
 
@@ -445,7 +425,7 @@ const estadoFiltro = ref('');
 const formulario = ref({
   id: null as number | null,
   periodo_id: '',
-  tolerancia_presente_min: 10,
+  tolerancia_presente_min: 15,
   tolerancia_tarde_min: 20,
   tolerancia_falta_min: 120,
   aplica_control_horario: false,
@@ -521,7 +501,7 @@ const abrirModalNuevo = () => {
   formulario.value = {
     id: null,
     periodo_id: '',
-    tolerancia_presente_min: 10,
+    tolerancia_presente_min: 15,
     tolerancia_tarde_min: 20,
     tolerancia_falta_min: 120,
     aplica_control_horario: false,
